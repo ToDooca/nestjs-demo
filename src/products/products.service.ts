@@ -1,9 +1,15 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Product } from "./product.entity";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
 
 @Injectable()
 export class ProductsService {
   private products: Product[] = [];
+
+  constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {
+
+  }
 
   findProduct(id: string): [Product, number] {
     const productIndex = this.products.findIndex(prod => prod.id === id);
@@ -13,12 +19,15 @@ export class ProductsService {
     }
     return [product, productIndex];
   }
-
   insertProduct(title: string, desc: string, price: number) {
     // prodId is random number just for demo purposes,
     // I would not use this in production!!!
     const prodId = Math.random().toString();
-    const newProduct = new Product(prodId, title, desc, price);
+    const newProduct = new this.productModel({
+      title: title,
+      description: desc,
+      price: price,
+    });
     this.products.push(newProduct);
     return prodId;
   }
