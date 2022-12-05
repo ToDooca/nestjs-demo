@@ -28,7 +28,9 @@ export class ProductsService {
       description: desc,
       price: price,
     });
-    this.products.push(newProduct);
+    newProduct.save().then(result => {
+      console.log(result);
+    });
     return prodId;
   }
 
