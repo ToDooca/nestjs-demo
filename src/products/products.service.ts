@@ -20,8 +20,6 @@ export class ProductsService {
     return [product, productIndex];
   }
   insertProduct(product: ProductDTO): string {
-    // prodId is random number just for demo purposes,
-    // I would not use this in production!!!
     const newProduct = new this.productModel(product);
     newProduct.save().then(result => {
       return result.id as string;
