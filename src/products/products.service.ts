@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadGatewayException, Injectable, NotFoundException } from "@nestjs/common";
 import { Product, ProductDTO } from "./product.entity";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -7,53 +7,56 @@ import { Model } from "mongoose";
 export class ProductsService {
   private products: Product[] = [];
 
-  constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {
+  constructor(@InjectModel("Product") private readonly productModel: Model<Product>) {
 
   }
 
-  findProduct(id: string): [Product, number] {
-    const productIndex = this.products.findIndex(prod => prod.id === id);
-    const product = this.products[productIndex];
-    if (!product) {
-      throw new NotFoundException('Could not find product.');
+  private async findProduct(id: string): Promise<Product> {
+    let product;
+    try {
+      product = await this.productModel.findById(id);
+    } catch (error) {
+      throw new NotFoundException("Could not find product.");
     }
-    return [product, productIndex];
+    if (!product) {
+      throw new NotFoundException("Could not find product.");
+    }
+    return product;
   }
-  insertProduct(product: ProductDTO): string {
+
+  async insertProduct(product: ProductDTO): Promise<Product> {
     const newProduct = new this.productModel(product);
-    newProduct.save().then(result => {
-      return result.id as string;
-    }).catch(err => {
-      console.log(err);
-    });
-    return newProduct.id as string;
+    try {
+      return await newProduct.save();
+    }
+    catch (error) {
+      throw new BadGatewayException("Could not insert product.");
+    }
   }
 
-  getAllProducts() {
-    return [...this.products];
+  async getAllProducts(): Promise<Product[]> {
+    try {
+      return await this.productModel.find().exec();
+    } catch (error) {
+      throw new NotFoundException("Could not find products.");
+    }
   }
 
-  getProduct(prodId: string) {
-    const product = this.findProduct(prodId)[0];
-    if (!product) {
-      throw new NotFoundException('Could not find product.');
+  async getProduct(prodId: string): Promise<Product> {
+    try {
+      return await this.findProduct(prodId);
+    } catch (error) {
+      throw new NotFoundException("Could not find product.");
     }
-    return {...product};
   }
 
-  updateProduct(product: Product) {
-    const [newProduct, index] = this.findProduct(product.id);
-    const updatedProduct = {...newProduct};
-    if (product.title) {
-      updatedProduct.title = product.title;
+  async updateProduct(product: Product): Promise<Product> {
+    const updatedProduct = new this.productModel(product);
+    try {
+      return await updatedProduct.save();
+    } catch (error) {
+      throw new BadGatewayException("Could not update product.");
     }
-    if (product.description) {
-      updatedProduct.description = product.description;
-    }
-    if (product.price) {
-      updatedProduct.price = product.price;
-    }
-    this.products[index] = updatedProduct;
   }
 
   deleteProduct(prodId: string) {

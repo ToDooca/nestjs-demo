@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 export const ProductSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -6,8 +6,8 @@ export const ProductSchema = new mongoose.Schema({
   price: { type: Number, required: true },
 });
 
-export interface Product {
-    id: string | undefined;
+export interface Product extends mongoose.Document {
+    _id: string | undefined;
     title: string;
     description: string;
     price: number;

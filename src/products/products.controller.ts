@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Delete, Put } from "@nestjs/common";
 import { ProductsService } from "./products.service";
 import { Product, ProductDTO } from "./product.entity";
 
@@ -7,9 +7,8 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  addProduct(@Body() productBody: ProductDTO): { id: string } {
-    const generatedId = this.productsService.insertProduct(productBody);
-    return { id: generatedId };
+  addProduct(@Body() productBody: ProductDTO): Promise<ProductDTO> {
+    return this.productsService.insertProduct(productBody);
   }
 
   @Get()
@@ -22,10 +21,9 @@ export class ProductsController {
     return this.productsService.getProduct(prodId);
   }
 
-  @Patch()
-  updateProduct(@Body() productBody: Product) {
-    this.productsService.updateProduct(productBody);
-    return null;
+  @Put()
+  updateProduct(@Body() productBody: Product): Promise<Product> {
+    return this.productsService.updateProduct(productBody);
   }
 
   @Delete(':id')
