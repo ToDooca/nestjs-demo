@@ -12,7 +12,7 @@ import { ConfigModule } from "@nestjs/config";
       envFilePath: ".env.local",
     }),
     MongooseModule.forRoot(
-      "mongodb+srv://"+process.env.DATABASE_USER+":" + encodeURIComponent(process.env.DATABASE_PASSWORD) + "@cluster0.0rs9ey4.mongodb.net/nestjs-demo?retryWrites=true&w=majority"
+      "mongodb+srv://" + process.env.DATABASE_USER + ":" + encodeURIComponent(process.env.DATABASE_PASSWORD) + "@cluster0.0rs9ey4.mongodb.net/nestjs-demo?retryWrites=true&w=majority"
     )
   ],
   controllers: [AppController],

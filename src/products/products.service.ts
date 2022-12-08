@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Product } from "./product.entity";
+import { Product, ProductDTO } from "./product.entity";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
@@ -19,19 +19,16 @@ export class ProductsService {
     }
     return [product, productIndex];
   }
-  insertProduct(title: string, desc: string, price: number) {
+  insertProduct(product: ProductDTO): string {
     // prodId is random number just for demo purposes,
     // I would not use this in production!!!
-    const prodId = Math.random().toString();
-    const newProduct = new this.productModel({
-      title: title,
-      description: desc,
-      price: price,
-    });
+    const newProduct = new this.productModel(product);
     newProduct.save().then(result => {
-      console.log(result);
+      return result.id as string;
+    }).catch(err => {
+      console.log(err);
     });
-    return prodId;
+    return newProduct.id as string;
   }
 
   getAllProducts() {
@@ -46,17 +43,17 @@ export class ProductsService {
     return {...product};
   }
 
-  updateProduct(prodId: string, title: string, desc: string, price: number) {
-    const [product, index] = this.findProduct(prodId);
-    const updatedProduct = {...product};
-    if (title) {
-      updatedProduct.title = title;
+  updateProduct(product: Product) {
+    const [newProduct, index] = this.findProduct(product.id);
+    const updatedProduct = {...newProduct};
+    if (product.title) {
+      updatedProduct.title = product.title;
     }
-    if (desc) {
-      updatedProduct.description = desc;
+    if (product.description) {
+      updatedProduct.description = product.description;
     }
-    if (price) {
-      updatedProduct.price = price;
+    if (product.price) {
+      updatedProduct.price = product.price;
     }
     this.products[index] = updatedProduct;
   }

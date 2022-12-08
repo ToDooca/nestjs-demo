@@ -12,3 +12,9 @@ export interface Product {
     description: string;
     price: number;
 }
+
+export interface ProductDTO {
+    title: string;
+    description: string;
+    price: number;
+}
